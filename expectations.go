@@ -12,7 +12,6 @@ import (
 func runExpectations(args []string) error {
 	fs := flag.NewFlagSet("expectations", flag.ExitOnError)
 	snmpYml := fs.String("snmp-yml", "", "Path to snmp.yml (required)")
-	module := fs.String("module", "", "Filter by module name")
 	fs.Parse(args)
 
 	if *snmpYml == "" {
@@ -22,14 +21,6 @@ func runExpectations(args []string) error {
 	expectations, err := loadExpectations(*snmpYml)
 	if err != nil {
 		return err
-	}
-
-	if *module != "" {
-		names, ok := expectations[*module]
-		if !ok {
-			return fmt.Errorf("module %q not found in snmp.yml", *module)
-		}
-		expectations = map[string][]string{*module: names}
 	}
 
 	enc := json.NewEncoder(os.Stdout)

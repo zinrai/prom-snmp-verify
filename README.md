@@ -28,7 +28,6 @@ prom-snmp-verify expectations --snmp-yml /path/to/snmp.yml
 Flags:
 
 - `--snmp-yml` (required) - Path to snmp.yml
-- `--module` - Filter by module name
 
 ### check
 
@@ -51,3 +50,7 @@ Exit codes:
 
 - 0 - All targets responded successfully
 - 1 - One or more targets failed
+
+## License
+
+This project is licensed under the [MIT License](./LICENSE).
