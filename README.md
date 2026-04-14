@@ -16,6 +16,7 @@ Flags:
 
 - `--prometheus-url` (required) - Prometheus URL
 - `--metrics-path` - Filter by metrics_path (default: `/snmp`)
+- `--output` - Output file path (default: `targets.json`)
 
 ### expectations
 
@@ -28,6 +29,7 @@ prom-snmp-verify expectations --snmp-yml /path/to/snmp.yml
 Flags:
 
 - `--snmp-yml` (required) - Path to snmp.yml
+- `--output` - Output file path (default: `expectations.json`)
 
 ### check
 
@@ -45,6 +47,7 @@ Flags:
 - `--snmp-yml` (required) - Path to snmp.yml
 - `--exporter-url` (required) - snmp_exporter URL
 - `--targets` (required) - Path to targets JSON file (output of `targets` subcommand)
+- `--output` - Output file path (default: `check.json`)
 
 Exit codes:
 

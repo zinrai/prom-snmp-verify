@@ -14,6 +14,7 @@ func runCheck(args []string) error {
 	snmpYml := fs.String("snmp-yml", "", "Path to snmp.yml (required)")
 	exporterURL := fs.String("exporter-url", "", "snmp_exporter URL (required)")
 	targetsFile := fs.String("targets", "", "Path to targets JSON file (required)")
+	output := fs.String("output", "check.json", "Output file path")
 	fs.Parse(args)
 
 	if *snmpYml == "" || *exporterURL == "" || *targetsFile == "" {
@@ -32,10 +33,8 @@ func runCheck(args []string) error {
 
 	results, hasError := checkAll(*exporterURL, targets, expectations)
 
-	enc := json.NewEncoder(os.Stdout)
-	enc.SetIndent("", "  ")
-	if err := enc.Encode(results); err != nil {
-		return fmt.Errorf("encoding results: %w", err)
+	if err := writeJSON(*output, results); err != nil {
+		return err
 	}
 
 	if hasError {

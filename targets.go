@@ -1,19 +1,20 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
 	"net/http"
 	"net/url"
-	"os"
+
+	"encoding/json"
 )
 
 func runTargets(args []string) error {
 	fs := flag.NewFlagSet("targets", flag.ExitOnError)
 	prometheusURL := fs.String("prometheus-url", "", "Prometheus URL (required)")
 	metricsPath := fs.String("metrics-path", "/snmp", "Filter by metrics_path")
+	output := fs.String("output", "targets.json", "Output file path")
 	fs.Parse(args)
 
 	if *prometheusURL == "" {
@@ -25,9 +26,7 @@ func runTargets(args []string) error {
 		return err
 	}
 
-	enc := json.NewEncoder(os.Stdout)
-	enc.SetIndent("", "  ")
-	return enc.Encode(targets)
+	return writeJSON(*output, targets)
 }
 
 func fetchTargets(prometheusURL, metricsPath string) ([]Target, error) {

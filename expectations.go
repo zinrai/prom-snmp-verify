@@ -1,7 +1,6 @@
 package main
 
 import (
-	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -12,6 +11,7 @@ import (
 func runExpectations(args []string) error {
 	fs := flag.NewFlagSet("expectations", flag.ExitOnError)
 	snmpYml := fs.String("snmp-yml", "", "Path to snmp.yml (required)")
+	output := fs.String("output", "expectations.json", "Output file path")
 	fs.Parse(args)
 
 	if *snmpYml == "" {
@@ -23,9 +23,7 @@ func runExpectations(args []string) error {
 		return err
 	}
 
-	enc := json.NewEncoder(os.Stdout)
-	enc.SetIndent("", "  ")
-	return enc.Encode(expectations)
+	return writeJSON(*output, expectations)
 }
 
 // loadExpectations parses snmp.yml and returns a map of module name to metric names.
