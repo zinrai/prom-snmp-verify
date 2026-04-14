@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log/slog"
 	"os"
 
 	"github.com/goccy/go-yaml"
@@ -22,6 +23,11 @@ func runExpectations(args []string) error {
 	if err != nil {
 		return err
 	}
+
+	for name, metrics := range expectations {
+		slog.Info("module found", "module", name, "metrics", len(metrics))
+	}
+	slog.Info("loaded expectations", "modules", len(expectations), "output", *output)
 
 	return writeJSON(*output, expectations)
 }
