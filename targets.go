@@ -1,13 +1,13 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/url"
-
-	"encoding/json"
 )
 
 func runTargets(args []string) error {
@@ -25,6 +25,11 @@ func runTargets(args []string) error {
 	if err != nil {
 		return err
 	}
+
+	for _, t := range targets {
+		slog.Info("target found", "scrapePool", t.ScrapePool, "scrapeUrl", t.ScrapeURL)
+	}
+	slog.Info("fetched targets", "count", len(targets), "output", *output)
 
 	return writeJSON(*output, targets)
 }
