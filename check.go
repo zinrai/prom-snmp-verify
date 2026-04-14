@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/url"
 	"os"
@@ -31,11 +32,41 @@ func runCheck(args []string) error {
 		return err
 	}
 
-	results, hasError := checkAll(*exporterURL, targets, expectations)
-
-	if err := writeJSON(*output, results); err != nil {
+	w, err := newJSONLinesWriter(*output)
+	if err != nil {
 		return err
 	}
+	defer w.Close()
+
+	total := len(targets)
+	hasError := false
+	passCount := 0
+	warnCount := 0
+	errorCount := 0
+
+	for i, t := range targets {
+		result := checkTarget(*exporterURL, t, expectations)
+
+		if err := w.Write(result); err != nil {
+			return err
+		}
+
+		progress := fmt.Sprintf("[%d/%d]", i+1, total)
+		switch result.Status {
+		case "pass":
+			passCount++
+			slog.Info("check completed", "progress", progress, "target", result.Target, "module", result.Module, "status", result.Status)
+		case "warn":
+			warnCount++
+			slog.Warn("check completed", "progress", progress, "target", result.Target, "module", result.Module, "status", result.Status, "missing", len(result.Missing))
+		case "error":
+			errorCount++
+			hasError = true
+			slog.Error("check completed", "progress", progress, "target", result.Target, "module", result.Module, "status", result.Status, "error", result.Error)
+		}
+	}
+
+	slog.Info("check finished", "pass", passCount, "warn", warnCount, "error", errorCount, "output", *output)
 
 	if hasError {
 		os.Exit(1)
@@ -56,21 +87,6 @@ func loadTargets(path string) ([]Target, error) {
 	}
 
 	return targets, nil
-}
-
-func checkAll(exporterURL string, targets []Target, expectations map[string][]string) ([]CheckResult, bool) {
-	var results []CheckResult
-	hasError := false
-
-	for _, t := range targets {
-		result := checkTarget(exporterURL, t, expectations)
-		if result.Status == "error" {
-			hasError = true
-		}
-		results = append(results, result)
-	}
-
-	return results, hasError
 }
 
 func checkTarget(exporterURL string, t Target, expectations map[string][]string) CheckResult {
